@@ -50,6 +50,7 @@ defmodule BlogWeb do
       unquote(view_helpers())
       import BlogWeb.LiveHelpers
 
+      alias Blog.Accounts
       alias Blog.Accounts.User
       @impl true
       def handle_info(%{event: "logout_user", payload: %{user: %User{id: id}}}, socket) do
@@ -64,11 +65,22 @@ defmodule BlogWeb do
       end
 
       @impl true
-      def handle_params(_unsigned_params, uri, socket) do
-        {:noreply,
-          socket
-          |> assign(current_uri_path: URI.parse(uri).path)
-        }
+      def handle_params(params, uri, socket) do
+        if Map.has_key?(params, "username") do
+          %{"username" => username} = params
+          user = Accounts.profile(username)
+
+          {:noreply,
+            socket
+            |> assign(current_uri_path: URI.parse(uri).path)
+            |> assign(user: user, page_title: "#{user.full_name} (@#{user.username})")
+          }
+        else
+          {:noreply,
+            socket
+            |> assign(current_uri_path: URI.parse(uri).path)
+          }
+        end
       end
     end
   end
@@ -111,6 +123,7 @@ defmodule BlogWeb do
 
       import BlogWeb.ErrorHelpers
       import BlogWeb.Gettext
+      import BlogWeb.RenderHelpers
       alias BlogWeb.Router.Helpers, as: Routes
     end
   end

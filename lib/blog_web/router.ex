@@ -21,6 +21,7 @@ defmodule BlogWeb.Router do
     pipe_through :browser
 
     live "/", PageLive, :index
+    live "/:username", UserLive.Profile
   end
 
   # Other scopes may use custom stacks.
@@ -62,9 +63,9 @@ defmodule BlogWeb.Router do
   scope "/", BlogWeb do
     pipe_through [:browser, :require_authenticated_user]
 
-    get "/users/settings", UserSettingsController, :edit
-    put "/users/settings", UserSettingsController, :update
     get "/users/settings/confirm_email/:token", UserSettingsController, :confirm_email
+    live "/accounts/edit", UserLive.Settings
+    live "/accounts/password/change", UserLive.PassSettings
   end
 
   scope "/", BlogWeb do

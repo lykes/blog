@@ -108,6 +108,23 @@ defmodule Blog.Accounts do
     User.email_changeset(user, attrs)
   end
 
+  def change_user(user, attrs \\ %{}) do
+    User.registration_changeset(user, attrs, register_user: false)
+  end
+
+  def update_user(user, attrs) do
+    user
+    |> User.registration_changeset(attrs, register_user: false)
+    |> Repo.update()
+  end
+
+  @doc """
+  Gets the user with the given username param.
+  """
+  def profile(param) do
+    Repo.get_by!(User, username: param)
+  end
+
   @doc """
   Emulates that the email will change without actually changing
   it in the database.
@@ -184,32 +201,11 @@ defmodule Blog.Accounts do
     User.password_changeset(user, attrs, hash_password: false)
   end
 
-  @doc """
-  Updates the user password.
-
-  ## Examples
-
-      iex> update_user_password(user, "valid password", %{password: ...})
-      {:ok, %User{}}
-
-      iex> update_user_password(user, "invalid password", %{password: ...})
-      {:error, %Ecto.Changeset{}}
-
-  """
   def update_user_password(user, password, attrs) do
-    changeset =
-      user
-      |> User.password_changeset(attrs)
-      |> User.validate_current_password(password)
-
-    Ecto.Multi.new()
-    |> Ecto.Multi.update(:user, changeset)
-    |> Ecto.Multi.delete_all(:tokens, UserToken.user_and_contexts_query(user, :all))
-    |> Repo.transaction()
-    |> case do
-      {:ok, %{user: user}} -> {:ok, user}
-      {:error, :user, changeset, _} -> {:error, changeset}
-    end
+    user
+    |> User.password_changeset(attrs)
+    |> User.validate_current_password(password)
+    |> Repo.update()
   end
 
   ## Session
