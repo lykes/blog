@@ -63,25 +63,6 @@ defmodule BlogWeb do
           _any -> {:noreply, socket}
         end
       end
-
-      @impl true
-      def handle_params(params, uri, socket) do
-        if Map.has_key?(params, "username") do
-          %{"username" => username} = params
-          user = Accounts.profile(username)
-
-          {:noreply,
-            socket
-            |> assign(current_uri_path: URI.parse(uri).path)
-            |> assign(user: user, page_title: "#{user.full_name} (@#{user.username})")
-          }
-        else
-          {:noreply,
-            socket
-            |> assign(current_uri_path: URI.parse(uri).path)
-          }
-        end
-      end
     end
   end
 

@@ -21,7 +21,7 @@ defmodule BlogWeb.Router do
     pipe_through :browser
 
     live "/", PageLive, :index
-    live "/:username", UserLive.Profile
+    live "/:username", UserLive.Profile, :index
   end
 
   # Other scopes may use custom stacks.
